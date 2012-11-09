@@ -70,5 +70,41 @@ namespace Whisper.Properties {
                 this["AccessTokenSecret"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string APIBaseAddress {
+            get {
+                return ((string)(this["APIBaseAddress"]));
+            }
+            set {
+                this["APIBaseAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SenderID {
+            get {
+                return ((string)(this["SenderID"]));
+            }
+            set {
+                this["SenderID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ReceiverID {
+            get {
+                return ((string)(this["ReceiverID"]));
+            }
+            set {
+                this["ReceiverID"] = value;
+            }
+        }
     }
 }

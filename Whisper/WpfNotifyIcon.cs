@@ -30,13 +30,12 @@ namespace Whisper
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    if (_window != null)
-                    {
-                        _window.Visibility = System.Windows.Visibility.Visible;
-                        _window.WindowState = System.Windows.WindowState.Normal;
-                        _window.Activate();
-                    }
+                    ShowWindow();
                 }
+            };
+            NotifyIcon.BalloonTipClicked += (sender, e) =>
+            {
+                ShowWindow();
             };
             NotifyIcon.Visible = true;
 
@@ -71,6 +70,39 @@ namespace Whisper
             {
                 _notifyIcon.Dispose();
                 _notifyIcon = null;
+            }
+        }
+
+        public void ShowWindow()
+        {
+            if (_window != null)
+            {
+                _window.Visibility = System.Windows.Visibility.Visible;
+                _window.WindowState = System.Windows.WindowState.Normal;
+                _window.Activate();
+
+                _notifyIcon.Icon = Whisper.Properties.Resources.AppIcon;
+            }
+        }
+
+        public void HideWindow()
+        {
+            if (_window != null)
+            {
+                _window.Visibility = System.Windows.Visibility.Hidden;
+            }
+        }
+
+        public void ShowBalloonTip(int timeout, string tipTitle, string tipText, ToolTipIcon tipIcon)
+        {
+            if (_window != null)
+            {
+                if (_window.IsVisible == false)
+                {
+                    _notifyIcon.ShowBalloonTip(timeout, tipTitle, tipText, tipIcon);
+
+                    _notifyIcon.Icon = Whisper.Properties.Resources.AppIcon_b;
+                }
             }
         }
     }

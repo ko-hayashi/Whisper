@@ -67,6 +67,13 @@ namespace Whisper.Properties {
             }
         }
         
+        internal static System.Drawing.Icon AppIcon_b {
+            get {
+                object obj = ResourceManager.GetObject("AppIcon_b", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
         /// <summary>
         ///   終了 に類似しているローカライズされた文字列を検索します。
         /// </summary>

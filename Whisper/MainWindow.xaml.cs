@@ -45,20 +45,6 @@ namespace Whisper
             _notifyIcon.Attach(this);
         }
 
-        private DispatcherTimer _dispatcherTimer;
-
-        private void InitializeTimer()
-        {
-            _dispatcherTimer = new DispatcherTimer();
-            _dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            _dispatcherTimer.Tick += (sender, e) =>
-            {
-                ViewModel.DirectMessages.Add(DateTime.Now.ToString());
-
-                _notifyIcon.NotifyIcon.ShowBalloonTip(5000, "you got a mail", DateTime.Now.ToString(), ToolTipIcon.Info);
-            };
-            _dispatcherTimer.Start();
-        }
 
         public MainWindowViewModel ViewModel
         {
@@ -68,63 +54,103 @@ namespace Whisper
             }
         }
 
-        private void jsonTest()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[");
-            sb.Append("{");
-            sb.Append("\"created_at\": \"Mon Aug 27 17:21:03 +0000 2012\", ");
-            sb.Append("\"entities\": {");
-            sb.Append("\"hashtags\": [], ");
-            sb.Append("\"urls\": [], ");
-            sb.Append("\"user_mentions\": []");
-            sb.Append("}");
-            sb.Append("}");
-            sb.Append("]");
-            string json = sb.ToString();
+        //private void jsonTest()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("[");
+        //    sb.Append("{");
+        //    sb.Append("\"created_at\": \"Mon Aug 27 17:21:03 +0000 2012\", ");
+        //    sb.Append("\"entities\": {");
+        //    sb.Append("\"hashtags\": [], ");
+        //    sb.Append("\"urls\": [], ");
+        //    sb.Append("\"user_mentions\": []");
+        //    sb.Append("}");
+        //    sb.Append("}");
+        //    sb.Append("]");
+        //    string json = sb.ToString();
 
-            using (System.IO.MemoryStream ss = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(json)))
-            using (System.IO.StreamWriter ww = new System.IO.StreamWriter(ss))
-            {
-                ww.Write(json);
+        //    using (System.IO.MemoryStream ss = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(json)))
+        //    using (System.IO.StreamWriter ww = new System.IO.StreamWriter(ss))
+        //    {
+        //        ww.Write(json);
 
-                try
-                {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Result[]));
-                    var result = serializer.ReadObject(ss) as Result[];
-                    Console.WriteLine(result);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-        }
+        //        try
+        //        {
+        //            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Result[]));
+        //            var result = serializer.ReadObject(ss) as Result[];
+        //            Console.WriteLine(result);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine(ex.ToString());
+        //        }
+        //    }
+        //}
  
         public MainWindow()
         {
             InitializeComponent();
 
-            InitializeNotifyIcon();
-            InitializeTimer();
+            textBox1.Focus();
 
-            //jsonTest();
-            
-            OAuthLib.Consumer consumer = new OAuthLib.Consumer(Whisper.Properties.Settings.Default.ConsumerKey, Whisper.Properties.Settings.Default.ConsumerSecret);
-            OAuthLib.AccessToken accessToken = new OAuthLib.AccessToken(Whisper.Properties.Settings.Default.AccessToken, Whisper.Properties.Settings.Default.AccessTokenSecret);
-            var response = consumer.AccessProtectedResource(accessToken, "https://api.twitter.com/1.1/direct_messages.json", "GET", "http://twitter.com", new [] { new OAuthLib.Parameter("since_id","100") });
-            using (var stream = response.GetResponseStream())
+            InitializeNotifyIcon();
+        }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+
+            try
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Result[]));
-                var result = serializer.ReadObject(stream) as Result[];
-                Console.WriteLine(result);
+                DragMove();
             }
-             
+            catch { }
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             _notifyIcon.Dispose();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Initialize();
+            ViewModel.DirectMessages.CollectionChanged += (sender2, e2) =>
+            {
+                if (e2.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                {
+                    foreach (Twitterizer.TwitterDirectMessage item in e2.NewItems)
+                    {
+                        _notifyIcon.ShowBalloonTip(1000, "新着メッセージ", DateTime.Now.ToString(), ToolTipIcon.Info);
+                    }
+                }
+            };
+            ViewModel.StartTimer();
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            _notifyIcon.HideWindow();
+        }
+
+        private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                ViewModel.SendMessage();
+            }
+        }
+
+        private void listBox1_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            ViewModel.Opacity = 0.8;
+            ViewModel.Background = Colors.White;
+        }
+
+        private void listBox1_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            ViewModel.Opacity = 0.2;
+            ViewModel.Background = Colors.Transparent;
         }
     }
 }
